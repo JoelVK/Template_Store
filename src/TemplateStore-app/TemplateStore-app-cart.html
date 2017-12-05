@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -12,7 +13,7 @@
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 
 
-<dom-module id="templatestore-app">
+<dom-module id="templatestore-app-cart">
     <template>
         <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
         <style>
@@ -45,8 +46,8 @@
             .templatePic {
               width: 90%;
             }
-            .customGreen {
-              background-color: #5FB760;
+            .customRed {
+              background-color: #DA3849;
               border-radius: .25rem;
               color: white;
             }
@@ -58,20 +59,21 @@
                        database-url="https://templatestore-cis371.firebaseio.com"
                        project-id="templatestore-cis371"
                        storage-bucket="templatestore-cis371.appspot.com"></firebase-app>
-        <firebase-query path="/templates" data="{{templateData}}"></firebase-query>
+        <firebase-auth user="{{user}}"></firebase-auth>
+        <firebase-query path="/users/[[user.uid]]/cart" data="{{cartData}}"></firebase-query>
 
-        <iron-list items="[[templateData]]" as="templates">
+        <iron-list items="[[cartData]]" as="cart">
             <template>
                 <div class="item layout horizontal wrap">
-                        <paper-card heading="[[templates.name]]">
+                        <paper-card heading="[[cart.name]]">
                             <div class="card-content">
-                                <div>Cost: $[[templates.cost]]</div>
+                                <div>Cost: $[[cart.cost]]</div>
                                 <div class="imageContainer">
-                                  <img src="resources/img/[[templates.name]].jpg" class="templatePic">
+                                  <img src="resources/img/[[cart.name]].jpg" class="templatePic">
                                 <div>
                             </div>
                             <div class="card-actions">
-                                 <paper-button raised class="customGreen" on-click="addToCart"><iron-icon icon="icons:add-shopping-cart"></iron-icon>Add to Cart</paper-button>
+                                 <paper-button raised class="customRed" on-click="removeFromCart"><iron-icon icon="icons:add-shopping-cart"></iron-icon>Remove from Cart</paper-button>
                             </div>
                         </paper-card>
                 </div>
@@ -96,12 +98,12 @@
      * @polymer
      */
 
-    class TemplateStoreApp extends Polymer.Element {
+    class TemplateStoreAppCart extends Polymer.Element {
             constructor() {
                 super();
             }
             static get is() {
-                return 'templatestore-app';
+                return 'templatestore-app-cart';
             }
             diaClosed(){
                 if (this.$.newTemplate.closingReason.confirmed) {
@@ -116,17 +118,18 @@
             addNewTemplate() {
                 this.$.newTemplate.open();
             }
-            addToCart(ev){
+            removeFromCart(ev){
                 var dbRef = this.$.myFireApp.app.database();
                 var uid = firebase.auth().currentUser.uid;
                 console.log(uid);
-                dbRef.ref('/users/' + uid + '/cart/' + ev.model.templates.$key +  '/').set({
+                console.log(ev.model.users.[[uid]].cart);
+                dbRef.ref('/users/' + uid + '/cart/' + ev.model.templates.$key +  '/').remove({
                     cost: ev.model.templates.cost,
                     name: ev.model.templates.name,
                     source: ev.model.templates.source
                 });
             }
         }
-        window.customElements.define(TemplateStoreApp.is, TemplateStoreApp);
+        window.customElements.define(TemplateStoreAppCart.is, TemplateStoreAppCart);
     </script>
 </dom-module>
