@@ -16,6 +16,7 @@
     <template>
         <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
         <style>
+
             :host {
                 display: block;
             }
@@ -28,8 +29,9 @@
                 width: 100vw;
             }
             paper-card{
-                background-color: #90a4ae;
+                background-color: white;
                 border-radius: 8px;
+                width: 33vw;
             }
             paper-button{
                 margin: 16px;
@@ -39,6 +41,14 @@
             }
             .test{
                 border: 3px red;
+            }
+            .templatePic {
+              width: 50%;
+            }
+            .customGreen {
+              background-color: #5FB760;
+              border-radius: .25rem;
+              color: white;
             }
         </style>
 
@@ -55,15 +65,19 @@
                 <div class="item layout horizontal wrap">
                         <paper-card heading="[[templates.name]]">
                             <div class="card-content">
-                                <div>Cost: [[templates.cost]]</div>
+                                <div>Cost: $[[templates.cost]]</div>
+                                <div class="imageContainer">
+                                  <img src="resources/img/[[templates.name]].jpg" class="templatePic">
+                                <div>
                             </div>
                             <div class="card-actions">
-                                <iron-icon on-click="addToCart" icon="icons:add-shopping-cart"></iron-icon>
+                                 <paper-button raised class="customGreen" on-click="addToCart"><iron-icon icon="icons:add-shopping-cart"></iron-icon>Add to Cart</paper-button>
                             </div>
                         </paper-card>
                 </div>
             </template>
         </iron-list>
+        <!--- We probably dont want to allow anyone to add new templates. Templates can be added in firebase console
         <paper-dialog id="newTemplate" modal on-iron-overlay-closed="diaClosed">
             <paper-input id="nameInput" label="Name"></paper-input>
             <paper-input id="costInput" label="Cost"></paper-input>
@@ -74,6 +88,7 @@
             </div>
         </paper-dialog>
         <paper-button raised id="diaBtn" on-click="addNewTemplate">Add New</paper-button>
+        --->
     </template>
 
     <script>/**
