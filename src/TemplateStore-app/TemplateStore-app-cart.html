@@ -32,7 +32,8 @@
             paper-card{
                 background-color: white;
                 border-radius: 8px;
-                width: 33vw;
+                width: 30%;
+                margin: 5vw 5vw 5vw 5vw;
             }
             paper-button{
                 margin: 16px;
@@ -50,6 +51,14 @@
               background-color: #DA3849;
               border-radius: .25rem;
               color: white;
+              width: 19vw;
+            }
+            .content {
+              margin-left: 20px;
+              font-weight: bold;
+            }
+            ul {
+              list-style: none;
             }
         </style>
 
@@ -61,24 +70,29 @@
                        storage-bucket="templatestore-cis371.appspot.com"></firebase-app>
         <firebase-auth user="{{user}}"></firebase-auth>
         <firebase-query path="/users/[[user.uid]]/cart" data="{{cartData}}"></firebase-query>
-
+        <paper-card heading="Items">
         <iron-list items="[[cartData]]" as="cart">
             <template>
-                <div class="item layout horizontal wrap">
-                        <paper-card heading="[[cart.name]]">
-                            <div class="card-content">
-                                <div>Cost: $[[cart.cost]]</div>
-                                <div class="imageContainer">
-                                  <img src="resources/img/[[cart.name]].jpg" class="templatePic">
-                                <div>
-                            </div>
-                            <div class="card-actions">
-                                 <paper-button raised class="customRed" on-click="removeFromCart"><iron-icon icon="icons:add-shopping-cart"></iron-icon>Remove from Cart</paper-button>
-                            </div>
-                        </paper-card>
-                </div>
+                <ul>
+                  <div class="item layout horizontal wrap">
+                      <li>
+                        <div class="content">
+                          <p>Item: [[cart.name]]</p>
+                          <p>Cost: $[[cart.cost]]</p>
+                          <p>Source: [[cart.source]]</p>
+                        </div>
+                        <div class="card-actions">
+                          <paper-button raised class="customRed" on-click="removeFromCart"><iron-icon icon="icons:add-shopping-cart"></iron-icon>Remove from Cart</paper-button>
+                        </div>
+                      </li>
+                    </div>
+                  </ul>
+                </paper-card>
             </template>
         </iron-list>
+        </paper-card>
+
+
         <!--- We probably dont want to allow anyone to add new templates. Templates can be added in firebase console
         <paper-dialog id="newTemplate" modal on-iron-overlay-closed="diaClosed">
             <paper-input id="nameInput" label="Name"></paper-input>
@@ -97,6 +111,7 @@
      * @customElement
      * @polymer
      */
+
 
     class TemplateStoreAppCart extends Polymer.Element {
             constructor() {
@@ -122,14 +137,11 @@
                 var dbRef = this.$.myFireApp.app.database();
                 var uid = firebase.auth().currentUser.uid;
                 console.log(uid);
-                console.log(ev.model.users.[[uid]].cart);
-                dbRef.ref('/users/' + uid + '/cart/' + ev.model.templates.$key +  '/').remove({
-                    cost: ev.model.templates.cost,
-                    name: ev.model.templates.name,
-                    source: ev.model.templates.source
-                });
+                console.log('/users/' + uid + '/cart/' + ev.model.cart.$key);
+                dbRef.ref('/users/' + uid + '/cart/' + ev.model.cart.$key + '/').remove();
             }
         }
         window.customElements.define(TemplateStoreAppCart.is, TemplateStoreAppCart);
     </script>
+
 </dom-module>
