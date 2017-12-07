@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample FirebaseUI App</title>
+    <link rel="manifest" href="/manifest.json">
+
+    <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+
+    <link rel="import" href="src/TemplateStore-app/TemplateStore-app-cart.html">
+    <!-- Bootstrap core CSS -->
+    <link href="resources/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/store.css" rel="stylesheet">
+
+    <script src="https://checkout.stripe.com/checkout.js"></script>
+    <style>
+      .well {
+        padding: 10%;
+        background-color: #5D5D5D;
+        border-radius: 5px;
+        width: 100%;
+      }
+
+      #amountInDollars {
+        width: 20%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-left: 40%;
+      }
+
+      .btn {
+        width: 20%;
+        color: white;
+         padding: 14px 20px;
+         margin: 8px 0;
+         border: none;
+         border-radius: 4px;
+         cursor: pointer;
+         margin-left: 40%;
+      }
+
+      h3 {
+        margin-left: 25%;
+        color: white;
+        margin-bottom: 5%;
+      }
+
+    </style>
+    <script type="text/javascript">
+        initApp = function() {
+            document.getElementById('sign-out').addEventListener('click', function() {
+                firebase.auth().signOut();
+                window.location.href = "index.html";
+            });
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    // User is signed in.
+                    var displayName = user.displayName;
+                    var email = user.email;
+                    var emailVerified = user.emailVerified;
+                    var photoURL = user.photoURL;
+                    var uid = user.uid;
+                    var phoneNumber = user.phoneNumber;
+                    var providerData = user.providerData;
+
+                    var dbRef = firebase.database().ref('/users/' + user.uid + '/');
+                    dbRef.update({
+                        name: user.displayName,
+                    });
+
+                } else {
+                    console.log('User is signed out.');
+                }
+            }, function(error) {
+                console.log(error);
+            });
+        };
+
+        window.addEventListener('load', function() {
+            initApp()
+        });
+    </script>
+
+</head>
+<body>
+<div class='container'>
+  <div class="row">
+    <div class="col-12">
+      <div class='well'>
+        <h3>Enter the amount you wish you donate</h3>
+        <form id="myForm" action="download.html" method="GET">
+          <input type="text" id="amountInDollars" />
+          <input type="hidden" id="stripeToken" name="stripeToken" />
+          <input type="hidden" id="stripeEmail" name="stripeEmail" />
+          <input type="hidden" id="amountInCents" name="amountInCents" />
+        </form>
+        <input type="button" class="btn btn-primary" id="customButton" value="Pay">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="resources/jquery/jquery.min.js"></script>
+<script src="resources/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+  var handler = StripeCheckout.configure({
+  key: 'pk_test_fBTbeB783rFySDVpKs7um0Ze',
+  image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+  token: function(token) {
+    $("#stripeToken").val(token.id);
+    $("#stripeEmail").val(token.email);
+    $("#amountInCents").val(Math.floor($("#amountInDollars").val() * 100));
+    $("#myForm").submit();
+  }
+  });
+
+  $('#customButton').on('click', function(e) {
+  var amountInCents = Math.floor($("#amountInDollars").val() * 100);
+  var displayAmount = parseFloat(Math.floor($("#amountInDollars").val() * 100) / 100).toFixed(2);
+  // Open Checkout with further options
+  handler.open({
+    name: 'Tempalte Site',
+    description: 'Custom amount ($' + displayAmount + ')',
+    amount: amountInCents,
+  });
+  e.preventDefault();
+  });
+
+  // Close Checkout on page navigation
+  $(window).on('popstate', function() {
+  handler.close();
+  });
+</script>
+</body>
+</html>

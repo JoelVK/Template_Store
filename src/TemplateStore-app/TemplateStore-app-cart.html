@@ -11,11 +11,16 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/granite-bootstrap/granite-bootstrap.html">
+
 
 
 <dom-module id="templatestore-app-cart">
     <template>
         <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+        <style include="granite-bootstrap"></style>
+        <link rel="stylesheet" href="https://checkout.stripe.com/v3/checkout/button.css"></link>
+        <script src="https://checkout.stripe.com/checkout.js"></script>
         <style>
 
             :host {
@@ -26,13 +31,13 @@
             }
             iron-list {
                 flex-direction: row;
-                height: 100vh;
-                width: 100vw;
+                height: auto;
+                width: 100%;
             }
             paper-card{
                 background-color: white;
                 border-radius: 8px;
-                width: 30%;
+                width: 80%;
                 margin: 5vw 5vw 5vw 5vw;
             }
             paper-button{
@@ -53,6 +58,12 @@
               color: white;
               width: 19vw;
             }
+            .customGreen {
+              background-color: #5FB760;
+              width: 90%;
+              color:white;
+
+            }
             .content {
               margin-left: 20px;
               font-weight: bold;
@@ -70,27 +81,33 @@
                        storage-bucket="templatestore-cis371.appspot.com"></firebase-app>
         <firebase-auth user="{{user}}"></firebase-auth>
         <firebase-query path="/users/[[user.uid]]/cart" data="{{cartData}}"></firebase-query>
-        <paper-card heading="Items">
-        <iron-list items="[[cartData]]" as="cart">
-            <template>
-                <ul>
-                  <div class="item layout horizontal wrap">
-                      <li>
-                        <div class="content">
-                          <p>Item: [[cart.name]]</p>
-                          <p>Cost: $[[cart.cost]]</p>
-                          <p>Source: [[cart.source]]</p>
+        <div class="row">
+          <div class="col-7">
+            <paper-card heading="Items">
+            <iron-list items="[[cartData]]" as="cart">
+                <template>
+                    <ul>
+                      <div class="item layout horizontal wrap">
+                          <li>
+                            <div class="content">
+                              <p>Item: [[cart.name]]</p>
+                            </div>
+                            <div class="card-actions">
+                              <paper-button raised class="customRed" on-click="removeFromCart"><iron-icon icon="icons:add-shopping-cart"></iron-icon>Remove from Cart</paper-button>
+                            </div>
+                          </li>
                         </div>
-                        <div class="card-actions">
-                          <paper-button raised class="customRed" on-click="removeFromCart"><iron-icon icon="icons:add-shopping-cart"></iron-icon>Remove from Cart</paper-button>
-                        </div>
-                      </li>
-                    </div>
-                  </ul>
-                </paper-card>
-            </template>
-        </iron-list>
-        </paper-card>
+                      </ul>
+                </template>
+            </iron-list>
+            </paper-card>
+          </div>
+          <div class="col-5">
+                    <paper-card>
+                       <paper-button raised class="customGreen" on-click="donate">Donate to Download</paper-button>
+                    </paper-card>
+          </div>
+        </div>
 
 
         <!--- We probably dont want to allow anyone to add new templates. Templates can be added in firebase console
@@ -120,19 +137,6 @@
             static get is() {
                 return 'templatestore-app-cart';
             }
-            diaClosed(){
-                if (this.$.newTemplate.closingReason.confirmed) {
-                    var dbRef = this.$.myFireApp.app.database();
-                    dbRef.ref('/templates/').push().set({
-                        name: this.$.nameInput.value,
-                        cost: this.$.costInput.value,
-                        source: this.$.sourceInput.value
-                    });
-                }
-            }
-            addNewTemplate() {
-                this.$.newTemplate.open();
-            }
             removeFromCart(ev){
                 var dbRef = this.$.myFireApp.app.database();
                 var uid = firebase.auth().currentUser.uid;
@@ -140,6 +144,10 @@
                 console.log('/users/' + uid + '/cart/' + ev.model.cart.$key);
                 dbRef.ref('/users/' + uid + '/cart/' + ev.model.cart.$key + '/').remove();
             }
+            donate() {
+              location.href = "stripeDownload.html";
+            };
+
         }
         window.customElements.define(TemplateStoreAppCart.is, TemplateStoreAppCart);
     </script>

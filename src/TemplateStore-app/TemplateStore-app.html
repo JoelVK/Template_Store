@@ -71,7 +71,7 @@
                 <paper-card image="resources/img/[[templates.name]].jpg">
                     <div class="card-content">
                         <div>[[templates.name]]</div>
-                        <div>Cost: $[[templates.cost]]</div>
+
                     </div>
                     <div class="card-actions">
                         <paper-button raised class="customGreen" on-click="addToCart"><iron-icon icon="icons:add-shopping-cart"></iron-icon>Add to Cart</paper-button>
@@ -123,7 +123,6 @@
             var uid = firebase.auth().currentUser.uid;
             console.log(uid);
             dbRef.ref('/users/' + uid + '/cart/' + ev.model.templates.$key +  '/').set({
-                cost: ev.model.templates.cost,
                 name: ev.model.templates.name,
                 source: ev.model.templates.source
             });
