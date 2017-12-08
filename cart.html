@@ -19,6 +19,9 @@
         initApp = function() {
             document.getElementById('sign-out').addEventListener('click', function() {
                 firebase.auth().signOut();
+                window.location.href = "store.html";
+            });
+            document.getElementById('sign-in').addEventListener('click', function() {
                 window.location.href = "index.html";
             });
             firebase.auth().onAuthStateChanged(function(user) {
@@ -39,6 +42,14 @@
 
                 } else {
                     console.log('User is signed out.');
+                }
+
+                if (firebase.auth().currentUser === null) {
+                    document.getElementById("sign-out").style.visibility = 'hidden';
+                    document.getElementById("cart-link").style.visibility = 'hidden';
+                }
+                else{
+                    document.getElementById("sign-in").style.visibility = 'hidden';
                 }
             }, function(error) {
                 console.log(error);
